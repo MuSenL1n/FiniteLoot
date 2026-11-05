@@ -37,6 +37,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
 
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
       - name: Set up Java 25
         uses: actions/setup-java@v4
         with:
@@ -105,17 +112,23 @@ jobs:
       - name: Build, test, and check style
         run: ./gradlew clean build --stacktrace
 
-      - name: Validate version and select deployable JAR
+      - name: Validate version and select deployable JARs
         id: package
         shell: bash
         env:
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
-          jar_path="$(find build/libs -maxdepth 1 -type f -name 'FiniteLoot-*.jar' \
+          jar_path="$(find paper/build/libs -maxdepth 1 -type f -name 'FiniteLoot-*.jar' \
             ! -name '*-plain.jar' ! -name '*-sources.jar' -print -quit)"
           if [[ -z "$jar_path" ]]; then
-            echo 'No deployable FiniteLoot JAR was produced.' >&2
+            echo 'No deployable FiniteLoot plugin JAR was produced.' >&2
+            exit 1
+          fi
+
+          mod_jar="$(find neoforge/build/libs -maxdepth 1 -type f -name 'finiteloot-*-all.jar' -print -quit)"
+          if [[ -z "$mod_jar" ]]; then
+            echo 'No deployable FiniteLoot NeoForge JAR was produced.' >&2
             exit 1
           fi
 
@@ -126,7 +139,17 @@ jobs:
             exit 1
           fi
 
+          # Both artifacts ship under one version. Checking the expanded manifest here turns a stale
+          # neoforge.mods.toml into a failed build instead of a release that mixes version numbers.
+          mod_version="$(unzip -p "$mod_jar" META-INF/neoforge.mods.toml \
+            | sed -n 's/^version *= *"\(.*\)"$/\1/p')"
+          if [[ "$mod_version" != "$built_version" ]]; then
+            echo "Version mismatch: plugin=$built_version, mod=$mod_version" >&2
+            exit 1
+          fi
+
           echo "jar=$jar_path" >> "$GITHUB_OUTPUT"
+          echo "modJar=$mod_jar" >> "$GITHUB_OUTPUT"
           echo "version=$built_version" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release
@@ -135,5 +158,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: FiniteLoot ${{ steps.package.outputs.version }}
           generate_release_notes: true
-          files: ${{ steps.package.outputs.jar }}
+          files: |
+            ${{ steps.package.outputs.jar }}
+            ${{ steps.package.outputs.modJar }}
           fail_on_unmatched_files: true
