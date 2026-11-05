@@ -10,8 +10,10 @@
 
 | 子项目 | 产物 | 工具链 |
 | --- | --- | --- |
-| `paper/` | `paper/build/libs/FiniteLoot-<version>.jar` | Java 25 |
-| `neoforge/` | `neoforge/build/libs/finiteloot-1.21.1-<version>-all.jar` | Java 21 |
+| `paper/` | `paper/build/libs/finiteloot-<version>-26.2-paper.jar` | Java 25 |
+| `neoforge/` | `neoforge/build/libs/finiteloot-<version>-1.21.1-neoforge.jar` | Java 21 |
+
+发布文件名规则：`finiteloot-<版本>-<游戏版本>-<加载器>.jar`；插件的游戏版本是它编译用的 Paper 版本线（`gradle.properties` 的 `paperMinecraftVersion`），模组的是锁定的 Minecraft 版本。
 
 本机只需要一个能运行 Gradle 的 JDK（17 以上）；两个子项目各自的编译工具链由 Gradle 的 toolchain 机制自动下载（settings 里的 foojay resolver）。也可以用 `org.gradle.java.installations.paths`（放进 `GRADLE_USER_HOME/gradle.properties`，不要提交）指向本机已有的安装。
 

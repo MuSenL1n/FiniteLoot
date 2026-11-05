@@ -47,7 +47,7 @@
 ## 安装
 
 1. 服务端装 NeoForge 21.1.235（Minecraft 1.21.1）。
-2. 把 `finiteloot-1.21.1-<version>-all.jar` 丢进 `mods/`（`-all` 后缀的那一份才内嵌 SQLite 与 SnakeYAML）。
+2. 把 `finiteloot-<version>-1.21.1-neoforge.jar` 丢进 `mods/`（同目录里不带版本与加载器后缀的 `finiteloot-<version>.jar` 是开发薄 jar，缺 SQLite 驱动，别用）。
 3. 启动。首次启动会生成：
    - `config/finiteloot/config.yml` —— 与 Paper 版**字节级一致**，老配置可以直接搬过来
    - `finiteloot/claims.db` —— SQLite，含容器、领取、个人库存三张表
@@ -146,7 +146,7 @@
 ./gradlew build
 ```
 
-产物在 `neoforge/build/libs/`，用 `*-all.jar`（内含 SQLite 与 SnakeYAML）；Paper 插件在 `paper/build/libs/`。
+产物在 `neoforge/build/libs/`，发的是 `finiteloot-<version>-1.21.1-neoforge.jar`（内嵌 SQLite 与 SnakeYAML）；Paper 插件在 `paper/build/libs/`。
 
 ```bash
 ./gradlew :neoforge:dataLayerTest   # 只跑不依赖 Minecraft 的数据层测试
