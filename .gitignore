@@ -5,3 +5,12 @@ bin/
 out/
 *.iml
 .idea/
+
+# NeoForge run directories (created by the :neoforge run tasks)
+run/
+runs/
+logs/
+
+# Local OS noise
+.DS_Store
+Thumbs.db
