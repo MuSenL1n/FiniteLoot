@@ -119,14 +119,13 @@ jobs:
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
-          jar_path="$(find paper/build/libs -maxdepth 1 -type f -name 'FiniteLoot-*.jar' \
-            ! -name '*-plain.jar' ! -name '*-sources.jar' -print -quit)"
+          jar_path="$(find paper/build/libs -maxdepth 1 -type f -name 'finiteloot-*-paper.jar' -print -quit)"
           if [[ -z "$jar_path" ]]; then
-            echo 'No deployable FiniteLoot plugin JAR was produced.' >&2
+            echo 'No deployable FiniteLoot Paper JAR was produced.' >&2
             exit 1
           fi
 
-          mod_jar="$(find neoforge/build/libs -maxdepth 1 -type f -name 'finiteloot-*-all.jar' -print -quit)"
+          mod_jar="$(find neoforge/build/libs -maxdepth 1 -type f -name 'finiteloot-*-neoforge.jar' -print -quit)"
           if [[ -z "$mod_jar" ]]; then
             echo 'No deployable FiniteLoot NeoForge JAR was produced.' >&2
             exit 1

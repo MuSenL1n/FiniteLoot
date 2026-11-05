@@ -49,9 +49,7 @@ jobs:
         with:
           name: FiniteLoot-${{ github.sha }}
           path: |
-            paper/build/libs/FiniteLoot-*.jar
-            !paper/build/libs/*-plain.jar
-            !paper/build/libs/*-sources.jar
-            neoforge/build/libs/finiteloot-*-all.jar
+            paper/build/libs/finiteloot-*-paper.jar
+            neoforge/build/libs/finiteloot-*-neoforge.jar
           if-no-files-found: error
           retention-days: 14

@@ -19,10 +19,13 @@ val junit_version: String by project
 val snakeyaml_version: String by project
 
 base {
-    // The Minecraft line belongs in the file name. A 1.21.1 modpack server must never pick up a build
-    // for another game version by mistake, and the shared project version alone cannot say which one
-    // this jar is for.
-    archivesName = "finiteloot-$minecraft_version"
+    archivesName = "finiteloot"
+}
+
+// Released file name: <name>-<version>-<game version>-<loader>.jar, so a modpack server owner can tell
+// from the name alone that this is the NeoForge build for 1.21.1 and not the Paper plugin.
+tasks.named<Jar>("jarJar") {
+    archiveFileName.set("finiteloot-${project.version}-${minecraft_version}-neoforge.jar")
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
