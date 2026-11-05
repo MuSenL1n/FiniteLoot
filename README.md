@@ -2,6 +2,15 @@
 
 Paper/Purpur 26.2 服务端插件：为每名玩家提供独立战利品，同时限制每个容器的全服领取人数。无需客户端模组，数据库位于 `plugins/FiniteLoot/data.db`。
 
+本仓库同时维护两个产物，同一个版本号发布：
+
+| 产物 | 适用于 | 目录 |
+| --- | --- | --- |
+| `FiniteLoot-<version>.jar` | Paper / Purpur 服务器（插件） | [`paper/`](paper/) |
+| `finiteloot-1.21.1-<version>-all.jar` | NeoForge 1.21.1 模组服务器（模组） | [`neoforge/`](neoforge/) |
+
+两者面向不同的服务端，不同时运行，因此各自跟随不同的 Minecraft 版本。模组侧的说明见[NeoForge 移植](neoforge/README.md)。
+
 ## 要求与安装
 
 - Paper 或 Purpur 26.2
@@ -72,9 +81,10 @@ loot-table-overrides:
 ## 构建与发布
 
 ```powershell
-$env:JAVA_HOME='C:\Program Files\Java\jdk-25.0.3'
 .\gradlew.bat clean build
 ```
+
+一条命令构建两个产物：`paper/build/libs/FiniteLoot-<version>.jar` 与 `neoforge/build/libs/finiteloot-1.21.1-<version>-all.jar`。构建只需本机有一个 JDK（17 以上即可运行 Gradle），Paper 侧的 Java 25 与模组侧的 Java 21 工具链由 Gradle 自动补齐。
 
 构建、测试和 GitHub Actions 说明见[开发与测试](docs/DEVELOPMENT.md)和[发布流程](docs/RELEASE.md)。
 
@@ -96,3 +106,4 @@ GNU GPLv3，详见 `LICENSE`。
 - [兼容性与冲突](docs/COMPATIBILITY.md)
 - [开发与测试](docs/DEVELOPMENT.md)
 - [发布流程](docs/RELEASE.md)
+- [NeoForge 移植](neoforge/README.md) · [移植架构](neoforge/docs/architecture.md)

@@ -1,0 +1,29 @@
+prefix: '<gray>[<gold>FiniteLoot</gold>]</gray> '
+loading: '<yellow>Loading your personal loot...</yellow>'
+remaining-claims: '<gray>This container has <gold><remaining></gold>/<max> player claims remaining.</gray>'
+exhausted: '<red>This container has no claims remaining.</red>'
+exhausted-released: '<gray>This container is fully claimed and has been restored as a normal container.</gray>'
+completed: '<gray>You have already emptied this reward container.</gray>'
+final-claim: '<gold>This is the final claim; the container has been restored as a standard loot container.</gold>'
+database-error: '<red>The database is unavailable, so this claim was denied. Contact an administrator.</red>'
+no-permission: '<red>You do not have permission to do that.</red>'
+players-only: '<red>This action can only be used by a player.</red>'
+reload-ok: '<green>Configuration and messages reloaded.</green>'
+action-armed: '<yellow>Action armed. Right-click the target container. A new command replaces this action.</yellow>'
+invalid-number: '<red>The claim count must be a positive integer.</red>'
+invalid-player: '<red>That player could not be found.</red>'
+not-container: '<red>The target is not a manageable block container.</red>'
+not-lootable: '<red>The container has neither a LootTable nor a usable item template.</red>'
+set-ok: '<green>Container <id> now has a global limit of <max>.</green>'
+reset-ok: '<green>Claim state reset.</green>'
+remove-ok: '<green>The container is no longer managed by FiniteLoot.</green>'
+adopt-ok: '<green>The container is managed by FiniteLoot again: <id> (was <state>).</green>'
+migrate-ok: '<green>Migration, backup, and validation completed: <backup></green>'
+inspect: |-
+  <gold>ID:</gold> <id>
+  <gold>LootTable:</gold> <table>
+  <gold>Limit:</gold> <max>  <gold>Counted:</gold> <count>
+  <gold>Claims:</gold> <claims>
+  <gold>Dimension:</gold> <dimension> <gold>at</gold> <pos>
+usage: '<yellow>/finiteloot reload|inspect|set <count>|reset container|reset player <player>|remove|adopt|migrate</yellow>'
+conflict: 'Potentially conflicting loot plugins detected: <plugins>. Do not let multiple plugins manage the same container.'

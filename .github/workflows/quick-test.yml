@@ -23,6 +23,17 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      # One runner, both toolchains: :paper compiles with Java 25, :neoforge with Java 21. Gradle's
+      # toolchain resolver only fetches what the local setup is missing, but CI gives it nothing to
+      # fetch by installing both -- keeps runs deterministic and off the foojay mirror. Java 25 is
+      # installed last so it stays JAVA_HOME, matching what an upstream release build used.
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
       - name: Set up Java 25
         uses: actions/setup-java@v4
         with:
