@@ -1,0 +1,82 @@
+# Maximum number of different counted players who may claim a newly discovered container.
+# 新发现容器允许的全服计数玩家领取次数上限。
+default-max-claims: 3
+# Show the current remaining global claim slots in chat when a personal inventory opens.
+# 打开个人奖励库存时，是否在聊天框显示当前剩余全服领取次数。
+show-remaining-claims: true
+# Play the real container lid animation when the first viewer opens and the last viewer closes.
+# 首位玩家打开、最后一位玩家关闭时，是否播放世界容器的真实开合动画。
+play-container-animation: true
+# Play the matching vanilla open/close sound for chests, copper chests, barrels, and shulker boxes.
+# 箱子、铜箱、木桶和潜影盒是否播放对应的原版开合声音。
+play-container-sounds: true
+# Trigger nearby piglin anger when a guarded container is opened through the virtual GUI.
+# 通过虚拟奖励界面打开受猪灵保护的容器时，是否触发附近猪灵的仇恨。
+trigger-piglin-anger: true
+# FiniteLoot enforces one claim record per player; this value must remain 1.
+# FiniteLoot 强制每名玩家每个容器只能有一条领取记录，此值必须保持为 1。
+per-player-limit: 1
+# Action for a container with no counted slots left. Currently only DENY is supported.
+# 容器没有剩余计数名额时的动作，目前仅支持 DENY（拒绝打开）。
+exhausted-action: DENY
+# Prevent insertion into personal loot when true; false allows temporary personal storage.
+# 为 true 时禁止放入个人奖励库存；为 false 时可将未取空的个人库存作为临时储物箱。
+prevent-item-insertion: false
+# In PERSONAL final-claim mode, open the shared world container after a player empties personal loot.
+# 在最后一次领取使用 PERSONAL 模式时，玩家取空个人奖励后是否打开普通共享容器。
+completed-container-becomes-normal: true
+# Action when the final counted claim is allocated.
+# 最后一个计数领取名额被占用后的处理方式。
+# VANILLA_CONTAINER: write the final reward into the real container and restore vanilla behavior.
+# VANILLA_CONTAINER：将最后一次奖励写入真实容器并恢复原版行为。
+# PERSONAL: keep the final claim as a personal inventory.
+# PERSONAL：最后一次领取仍使用个人奖励库存。
+final-claim-action: VANILLA_CONTAINER
+# Delete all previous personal inventories when the final claim restores vanilla behavior.
+# 恢复原版容器时，是否清除此前所有玩家的个人奖励库存记录。
+clear-personal-inventories-on-final-claim: true
+# Show the final-claim transition message to the player who receives the last counted claim.
+# 是否向获得最后一个计数名额的玩家显示恢复原版容器提示。
+show-final-claim-message: true
+# Prevent hoppers and hopper minecarts from extracting from managed or eligible containers.
+# 是否阻止漏斗和漏斗矿车从受管理或可识别容器中抽取物品。
+prevent-hopper-extraction: true
+# Prevent players from breaking managed or eligible containers.
+# 是否阻止玩家破坏受管理或可识别容器。
+prevent-breaking: true
+# Let players break fully-claimed containers directly. Such a container reverts to a normal
+# breakable container when next clicked or broken, deleting its remaining database records
+# (including personal inventories players have not emptied yet).
+# 是否允许玩家直接破坏已领取完毕的奖励容器。开启后，这类容器会在下次被点击或破坏时
+# 恢复为普通容器，并删除其残留的数据库记录（包括玩家尚未取空的个人库存），请谨慎开启。
+allow-breaking-exhausted-containers: false
+# Remove managed or eligible containers from explosion block lists.
+# 是否从爆炸影响方块列表中移除受管理或可识别容器。
+prevent-explosions: true
+# Count Creative-mode players against the global limit when true.
+# 为 true 时，创造模式玩家领取会消耗全服名额。
+count-creative-players: false
+# Let players with finiteloot.bypass avoid consuming a global slot when true.
+# 为 true 时，拥有 finiteloot.bypass 权限的玩家领取不会消耗全服名额。
+admin-bypass-counts: false
+# World names excluded from automatic FiniteLoot interaction handling.
+# 不参与自动 FiniteLoot 交互处理的世界名称列表。
+excluded-worlds: []
+# Message language. Supported values are zh_CN and en_US.
+# 消息语言，支持 zh_CN 和 en_US。
+language: zh_CN
+# Per-LootTable global claim limits; unspecified tables use default-max-claims.
+# 按 LootTable 覆盖全服领取上限；未列出的 LootTable 使用 default-max-claims。
+loot-table-overrides:
+  # End City treasure: two counted players.
+  # 末地城宝箱：允许两名计数玩家领取。
+  minecraft:chests/end_city_treasure: 2
+  # Ancient City: two counted players.
+  # 远古城市：允许两名计数玩家领取。
+  minecraft:chests/ancient_city: 2
+  # Dungeon: five counted players.
+  # 地牢：允许五名计数玩家领取。
+  minecraft:chests/simple_dungeon: 5
+  # Abandoned Mineshaft: four counted players.
+  # 废弃矿井：允许四名计数玩家领取。
+  minecraft:chests/abandoned_mineshaft: 4
