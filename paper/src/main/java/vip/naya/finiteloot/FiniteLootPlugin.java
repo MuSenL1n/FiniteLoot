@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
@@ -76,8 +78,21 @@ public final class FiniteLootPlugin extends JavaPlugin {
 
         Bukkit.getScheduler().runTask(this, this::warnAboutConflicts);
         scanExhaustedContainers(exhausted);
-        getLogger().info("FiniteLoot enabled with database " + getDataFolder().toPath().resolve("data.db"));
-    }
+        // Worlds load before plugins enable, so chunks that came up with the server never fired a
+        // ChunkLoadEvent listener. Record their tables now, before the first hopper tick can spend them.
+        int recordedTables = 0;
+        for (World world : Bukkit.getWorlds()) {
+            if (settings.isWorldExcluded(world.getName())) {
+                continue;
+            }
+            for (Chunk chunk : world.getLoadedChunks()) {
+                recordedTables += containers.rememberLootTables(chunk);
+            }
+        }
+        if (recordedTables > 0) {
+            getLogger().info("Recorded the loot table of " + recordedTables + " already-loaded container(s)");
+        }
+        getLogger().info("FiniteLoot enabled with database " + getDataFolder().toPath().resolve("data.db"));    }
 
     @Override
     public void onDisable() {

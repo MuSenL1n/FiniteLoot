@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -27,11 +29,13 @@ public final class ContainerManager {
             .thenComparingInt(TileState::getZ);
     private final NamespacedKey containerIdKey;
     private final NamespacedKey ignoredKey;
+    private final NamespacedKey lootTableKey;
     private final Logger logger;
 
     public ContainerManager(JavaPlugin plugin) {
         containerIdKey = new NamespacedKey(plugin, "container_id");
         ignoredKey = new NamespacedKey(plugin, "ignored");
+        lootTableKey = new NamespacedKey(plugin, "loot_table");
         logger = plugin.getLogger();
     }
 
@@ -45,7 +49,41 @@ public final class ContainerManager {
                 || !(state instanceof InventoryHolder)) {
             return false;
         }
-        return !isIgnored(tile) && (readId(tile) != null || lootable.getLootTable() != null);
+        if (isIgnored(tile)) {
+            return false;
+        }
+        // The live loot table is not a durable answer: any read of the container can settle it, and after
+        // that it is gone. So the question is "does it have an id, or a table we recorded, or a table we
+        // can still see". This stays read-only; recording happens where the tile is live.
+        return readId(tile) != null || readLootTableKey(tile) != null || lootable.getLootTable() != null;
+    }
+
+    /**
+     * A hopper pulls from a container by reading it, and reading is what settles the loot. By the time
+     * InventoryMoveItemEvent reaches a listener the table is already spent, so a listener cannot be the
+     * first place that learns about it. Chunk load is the last moment the table is guaranteed to still
+     * be there, and it is also the moment the container becomes reachable by automation.
+     *
+     * @return the number of containers recorded
+     */
+    public int rememberLootTables(Chunk chunk) {
+        int remembered = 0;
+        for (BlockState state : chunk.getTileEntities()) {
+            if (!(state instanceof TileState tile) || !(state instanceof Lootable lootable) || isIgnored(tile)) {
+                continue;
+            }
+            if (readId(tile) != null || readLootTableKey(tile) != null) {
+                continue;
+            }
+            LootTable table = lootable.getLootTable();
+            if (table == null) {
+                continue;
+            }
+            tile.getPersistentDataContainer().set(lootTableKey, PersistentDataType.STRING, table.getKey().toString());
+            tile.update(true, false);
+            remembered++;
+        }
+        return remembered;
     }
 
     public Optional<UUID> existingId(Block block) {
@@ -57,6 +95,9 @@ public final class ContainerManager {
     public void removeIdentity(ContainerTarget target) {
         for (TileState tile : target.tiles()) {
             tile.getPersistentDataContainer().remove(containerIdKey);
+            // Forget the recorded table too. Left behind, it would keep the container "eligible" after an
+            // admin removed it, and it could resurrect a table vanilla has already spent.
+            tile.getPersistentDataContainer().remove(lootTableKey);
             tile.getPersistentDataContainer().set(ignoredKey, PersistentDataType.BYTE, (byte) 1);
             tile.update(true, false);
         }
@@ -131,13 +172,19 @@ public final class ContainerManager {
                 table = candidateLootable.getLootTable();
             }
         }
-        if (id == null && table == null && !allowManual) {
+        String rememberedKey = rememberedTableKey(tiles);
+        if (table == null && rememberedKey != null) {
+            table = resolveTable(rememberedKey);
+        }
+        // A remembered table keeps the container manageable even when the live table is already spent,
+        // otherwise a container can be protected yet unreachable for /fl remove.
+        if (id == null && table == null && rememberedKey == null && !allowManual) {
             return Optional.empty();
         }
         boolean newlyIdentified = id == null;
         id = ContainerIdentity.normalize(existingIds, UUID::randomUUID);
         if (writeIdentity) {
-            writeId(tiles, id);
+            writeId(tiles, id, table);
         }
         return Optional.of(new ContainerTarget(id, List.copyOf(tiles), holder.getInventory(), table, newlyIdentified));
     }
@@ -174,12 +221,39 @@ public final class ContainerManager {
         }
     }
 
-    private void writeId(List<TileState> tiles, UUID id) {
+    private void writeId(List<TileState> tiles, UUID id, LootTable table) {
+        String tableId = table == null ? null : table.getKey().toString();
         for (TileState tile : tiles) {
             tile.getPersistentDataContainer().remove(ignoredKey);
             tile.getPersistentDataContainer().set(containerIdKey, PersistentDataType.STRING, id.toString());
+            if (tableId != null) {
+                tile.getPersistentDataContainer().set(lootTableKey, PersistentDataType.STRING, tableId);
+            }
             tile.update(true, false);
         }
+    }
+
+    private String rememberedTableKey(List<TileState> tiles) {
+        for (TileState candidate : tiles) {
+            String key = readLootTableKey(candidate);
+            if (key != null) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    private String readLootTableKey(TileState tile) {
+        return tile.getPersistentDataContainer().get(lootTableKey, PersistentDataType.STRING);
+    }
+
+    private LootTable resolveTable(String key) {
+        NamespacedKey tableKey = NamespacedKey.fromString(key);
+        if (tableKey == null) {
+            logger.warning("Ignoring invalid FiniteLoot loot table key: " + key);
+            return null;
+        }
+        return Bukkit.getLootTable(tableKey);
     }
 
     private boolean isIgnored(TileState tile) {

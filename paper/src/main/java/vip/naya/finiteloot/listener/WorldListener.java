@@ -12,6 +12,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import vip.naya.finiteloot.admin.AdminActions;
@@ -72,6 +73,14 @@ public final class WorldListener implements Listener {
         if (settings.get().preventHopperExtraction() && protectedHolder(event.getSource().getHolder())) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChunkLoad(ChunkLoadEvent event) {
+        if (settings.get().isWorldExcluded(event.getWorld().getName())) {
+            return;
+        }
+        containers.rememberLootTables(event.getChunk());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
